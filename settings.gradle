@@ -1,0 +1,5 @@
+rootProject.name = 'idl-client'
+
+include 'idl-producer'
+include 'idl-consumer'
+

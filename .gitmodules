@@ -1,0 +1,3 @@
+[submodule "idl-demo"]
+	path = idl-demo
+	url = https://github.com/LenKIM/idl-demo.git

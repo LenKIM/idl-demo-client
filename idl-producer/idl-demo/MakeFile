@@ -1,0 +1,33 @@
+## http://korea.gnu.org/manual/release/make/make-sjp/make-ko_toc.html
+.PHONY : help gen
+.DEFAULT : xxx
+
+# https://hub.docker.com/r/znly/protoc/
+
+
+PROTO_BUFFER_CONTAINER := proto-gen
+RUNNING_DB_CONTAINER := $(shell docker ps -f name=$(PROTO_BUFFER_CONTAINER) --format "{{.Names}}")
+XX := $(shell docker run --rm -v $(pwd):$(pwd) -w $(pwd)/gen znly/protoc --java_out=. --proto_path=$(pwd)/protos $(pwd)/protos/**)
+
+GRADLE_TASKS = clean test build
+
+## https://gist.github.com/prwhite/8168133#gistcomment-3785627
+help: ## show help message
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+
+# docker run --rm -v $(pwd):$(pwd) -w $(pwd)/gen znly/protoc --java_out=. --proto_path=$(pwd)/protos $(pwd)/protos/**
+
+gen: ## Start PROTO_BUFFER GEN
+ifneq ($(RUNNING_DB_CONTAINER),$(PROTO_BUFFER_CONTAINER))
+	@docker run --rm --name $(PROTO_BUFFER_CONTAINER) \
+	-v ${PWD}:${PWD} \
+	-w ${PWD}/gen znly/protoc \
+	--java_out=. \
+	--proto_path=${pwd}/protos $(shell ${pwd}/protos/**) \
+else
+	@echo "($(PROTO_BUFFER_CONTAINER)) is Already running."
+endif
+
+text: ## TEST
+	echo ${PWD}
